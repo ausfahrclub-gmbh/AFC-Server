@@ -39,7 +39,7 @@ io.on('connection', (socket) => {
         const {id, level, type} = data;
 
         // If the same alarm is requested twice in a row, it will be cancelled
-        if(currentAlarmLevel == 'holdup'){
+        if(level == 'holdup'){
             //Send a custom package to the client, that will stop the current playing alarm(sound) 
             io.sockets.emit('alarm', {
                 id: id,
