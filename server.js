@@ -1,6 +1,16 @@
 var express = require('express');
 var socket  = require('socket.io');
 
+var requirejs = require('requirejs');
+
+requirejs.config({
+    //Pass the top-level main.js/index.js require
+    //function to requirejs so that node modules
+    //are loaded relative to the top-level JS file.
+    nodeRequire: require
+});
+
+
 const PORT = 9000; 
 var currentAlarmLevel;
 
@@ -10,6 +20,12 @@ var server = app.listen(PORT,() => {console.log(`Server running on port ${PORT}`
 
 //Static files
 app.use(express.static('public'));
+
+// POST method route
+app.post('/movieRating', function (req, res) {
+    res.send(req);
+    console.log(req.body);
+});
 
 // Socket setup & pass server
 var io = socket(server);
