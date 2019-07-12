@@ -21,11 +21,12 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
  
 // // create application/x-www-form-urlencoded parser
 // var urlencodedParser = bodyParser.urlencoded({ extended: false })
-
+var allowedOrigins = ['http://127.0.0.1:80', 'http://localhost:4200'];
+  
 //Static files
 app.use(express.static('public'), function (req, res, next) {
     // Website you wish to allow to connect
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
+    res.setHeader('Access-Control-Allow-Origin','*');
 
     // Request methods you wish to allow
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
