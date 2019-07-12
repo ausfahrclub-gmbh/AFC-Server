@@ -1,15 +1,7 @@
 var express = require('express');
 var socket  = require('socket.io');
 
-var requirejs = require('requirejs');
-
-requirejs.config({
-    //Pass the top-level main.js/index.js require
-    //function to requirejs so that node modules
-    //are loaded relative to the top-level JS file.
-    nodeRequire: require
-});
-
+var db = require('./database');
 
 const PORT = 9000; 
 var currentAlarmLevel;
@@ -18,13 +10,48 @@ var currentAlarmLevel;
 var app = express();
 var server = app.listen(PORT,() => {console.log(`Server running on port ${PORT}`);})
 
+var bodyParser = require('body-parser')
+app.use(bodyParser.json() );       // to support JSON-encoded bodies
+app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+  extended: true
+})); 
+
+// // create application/json parser
+// var jsonParser = bodyParser.json()
+ 
+// // create application/x-www-form-urlencoded parser
+// var urlencodedParser = bodyParser.urlencoded({ extended: false })
+
 //Static files
-app.use(express.static('public'));
+app.use(express.static('public'), function (req, res, next) {
+    // Website you wish to allow to connect
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
+
+    // Request methods you wish to allow
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+
+    // Request headers you wish to allow
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+
+    // Set to true if you need the website to include cookies in the requests sent
+    // to the API (e.g. in case you use sessions)
+    res.setHeader('Access-Control-Allow-Credentials', true);
+
+    // Pass to next layer of middleware
+    next();
+});
+
+// Get all movies
+app.get('/movies', async function(req, res){
+    var results = await db.getAllMovies()
+    //console.log('query results', results);
+    res.send(results)
+});
 
 // POST method route
-app.post('/movieRating', function (req, res) {
-    res.send(req);
-    console.log(req.body);
+app.post('/movieRatings', function (req, res) {
+    //console.log('req:', req.body.movie);
+    res.send(db.addMovieRating(req.body));
 });
 
 // Socket setup & pass server
