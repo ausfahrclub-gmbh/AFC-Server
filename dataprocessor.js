@@ -12,6 +12,11 @@ module.exports = {
           }
           data.push(movie);
       }
+      
+      if(data.length == 1){
+        return data[0];
+      }
+
       return data;
   }
 

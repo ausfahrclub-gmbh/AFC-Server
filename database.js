@@ -2,6 +2,7 @@ var oracledb = require('oracledb');
 
 const DataProcessor = require('./dataprocessor');
 
+//var dbuser = 'C##AFC'
 var dbuser = 'C##AFC'
 var mypw = 'passme'  // set mypw to the hr schema password
 var constrnig = 'localhost:1521/xe'
@@ -27,6 +28,39 @@ module.exports = {
             );
 
             let keys = ['movieName', 'genre', 'length', 'releaseDate'];
+
+            return DataProcessor.processData(result.rows, keys);
+        }
+        catch (err) {
+            console.error(err);
+        } finally {
+            if (connection) {
+                try {
+                    await connection.close();
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        }
+    },
+
+    getAllRatingsByMovie: async function (movieName) {
+
+        let connection;
+
+        try {
+            connection = await oracledb.getConnection({
+                user: dbuser,
+                password: mypw,
+                connectString: constrnig
+            });
+
+            let result = await connection.execute(
+                `SELECT * FROM AFC_MOVIE_RANKING_V WHERE "Movie"=:movieName`,
+                {movieName: movieName},  
+            );
+
+            let keys = ['movie', 'rating', 'ratingAmount'];
 
             return DataProcessor.processData(result.rows, keys);
         }
@@ -81,8 +115,12 @@ module.exports = {
             {
                 connection.commit();
                 console.log("commited changes");
+                return result;
+            } // still broken
+            else{
+                console.log("changes not commited")
+                return null;
             }
-            return result;
 
         } catch (err) {
             console.error(err);

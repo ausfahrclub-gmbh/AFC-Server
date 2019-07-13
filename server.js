@@ -21,8 +21,7 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
  
 // // create application/x-www-form-urlencoded parser
 // var urlencodedParser = bodyParser.urlencoded({ extended: false })
-var allowedOrigins = ['http://127.0.0.1:80', 'http://localhost:4200'];
-  
+
 //Static files
 app.use(express.static('public'), function (req, res, next) {
     // Website you wish to allow to connect
@@ -49,10 +48,20 @@ app.get('/movies', async function(req, res){
     res.send(results)
 });
 
+app.get('/movieRatings/:movieName', async function(req, res){
+    //console.log('rating req:' + req.params.movieName + ' return: ' + await db.getAllRatingsByMovie(req.params.movieName)[0]);
+    res.send(await db.getAllRatingsByMovie(req.params.movieName))
+})
+
 // POST method route
 app.post('/movieRatings', function (req, res) {
     //console.log('req:', req.body.movie);
-    res.send(db.addMovieRating(req.body));
+    var r = db.addMovieRating(req.body);
+    if(r == null){
+        res.status(500).send('Something broke!');
+    }else{
+        res.send();
+    }
 });
 
 // Socket setup & pass server
