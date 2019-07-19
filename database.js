@@ -23,11 +23,11 @@ module.exports = {
             });
 
             let result = await connection.execute(
-                `SELECT * FROM afc_movie`,
+                `SELECT * FROM afc_movie ORDER BY releaseDate`,
                 {},  // bind value for :id
             );
 
-            let keys = ['movieName', 'genre', 'length', 'releaseDate'];
+            let keys = ['movieName', 'genre', 'length', 'releaseDate', 'cinema'];
 
             return DataProcessor.processData(result.rows, keys);
         }
