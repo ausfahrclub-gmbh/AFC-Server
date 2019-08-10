@@ -6,6 +6,10 @@ var db = require('./database');
 const PORT = 9000; 
 var currentAlarmLevel;
 
+//For shoptimer xD
+var timerID;
+var isTimerRunning = false;
+
 //App
 var app = express();
 var server = app.listen(PORT,() => {console.log(`Server running on port ${PORT}`);})
@@ -101,6 +105,45 @@ io.on('connection', (socket) => {
             });
             console.log('Stopped:');         
             currentAlarmLevel = -1;        
+        }
+    
+        else if(level == 'shop'){
+            if(isTimerRunning){
+                isTimerRunning = false;
+                clearInterval(timerID);
+                console.log('timer stop');
+                //Emit stop signal for timer
+                io.sockets.emit('alarm', {
+                    id: id,
+                    type: 'shop',
+                    level: 'shop',
+                    status: 'disabled'
+                    
+                });
+            }
+            else{
+                console.log('timer emit');
+                io.sockets.emit('alarm', {
+                    id: id,
+                    type: 'shop',
+                    level: 'shop',
+                    status: 'active'
+                    
+            });
+                timerID = setInterval(function() {
+                    //Emit start signal for timer
+                        io.sockets.emit('alarm', {
+                            id: id,
+                            type: 'shop',
+                            level: 'shop',
+                            status: 'active'
+                            
+                    });
+                    console.log('intervall');
+                }, 180 * 1000); 
+
+                isTimerRunning = true;
+            }
         }
         // Emit Normal alarm
         else{ 
