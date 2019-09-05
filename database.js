@@ -2,8 +2,7 @@ var oracledb = require('oracledb');
 
 const DataProcessor = require('./dataprocessor');
 
-//var dbuser = 'C##AFC'
-var dbuser = 'nico'
+var dbuser = 'C##AFC'
 var mypw = 'passme'  // set mypw to the hr schema password
 var constrnig = 'localhost:1521/xe'
 
