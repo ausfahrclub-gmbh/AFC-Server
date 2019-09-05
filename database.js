@@ -3,7 +3,7 @@ var oracledb = require('oracledb');
 const DataProcessor = require('./dataprocessor');
 
 //var dbuser = 'C##AFC'
-var dbuser = 'C##AFC'
+var dbuser = 'nico'
 var mypw = 'passme'  // set mypw to the hr schema password
 var constrnig = 'localhost:1521/xe'
 
@@ -33,6 +33,66 @@ module.exports = {
         }
         catch (err) {
             console.error(err);
+        } finally {
+            if (connection) {
+                try {
+                    await connection.close();
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        }
+    },
+
+    addMovie: async function(body) {
+        
+        let connection;
+        let {movieName, genre, length, releaseDate, cinema} = body
+        //Formattig date preps
+        releaseDate = releaseDate.substring(0,10);
+
+        console.log(body);
+
+        const insertSql = "INSERT INTO AFC_MOVIE(moviename,genre,length,releasedate,cinema) values (:m, :g, :l, TO_DATE(:r, 'YYYY-MM-DD'), :c)";
+
+        const binds = 
+            { m: movieName, g: genre, l: length, r: releaseDate, c: cinema }
+        ;
+
+        const options = {
+            autoCommit: false,
+            bindDefs: {
+              m: { type: oracledb.STRING },
+              g: { type: oracledb.STRING },
+              l: { type: oracledb.NUMBER },
+              r: { type: oracledb.DATE },
+              c: { type: oracledb.STRING },
+            }
+        };
+
+        try {
+            connection = await oracledb.getConnection({
+                user: dbuser,
+                password: mypw,
+                connectString: constrnig
+            })
+
+            result = await connection.execute(insertSql, binds, options);
+            
+            if(result.lenght != 0)
+            {
+                connection.commit();
+                console.log("commited changes");
+                return result;
+            } // still broken
+            else{
+                console.log("changes not commited")
+                return null;
+            }
+
+        } catch (err) {
+            console.error(err);
+            return 0;
         } finally {
             if (connection) {
                 try {
@@ -124,6 +184,7 @@ module.exports = {
 
         } catch (err) {
             console.error(err);
+            return 0;
         } finally {
             if (connection) {
                 try {

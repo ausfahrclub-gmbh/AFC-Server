@@ -52,19 +52,32 @@ app.get('/movies', async function(req, res){
     res.send(results)
 });
 
+app.post('/movies', async function(req, res){
+    var results = await db.addMovie(req.body)
+
+    if(results.rowsAffected == 1){
+        res.send(results);
+    }else{
+        res.status(500).send('Something broke!');
+    }
+});
+
 app.get('/movieRatings/:movieName', async function(req, res){
     //console.log('rating req:' + req.params.movieName + ' return: ' + await db.getAllRatingsByMovie(req.params.movieName)[0]);
     res.send(await db.getAllRatingsByMovie(req.params.movieName))
 })
 
 // POST method route
-app.post('/movieRatings', function (req, res) {
-    //console.log('req:', req.body.movie);
-    var r = db.addMovieRating(req.body);
-    if(r == null){
-        res.status(500).send('Something broke!');
+app.post('/movieRatings', async function (req, res) {
+
+    //Get result (rowsAffected)
+    var r = await db.addMovieRating(req.body);
+
+    //If rowsAffected equals 1  => success
+    if(r.rowsAffected == 1){
+        res.send(r);
     }else{
-        res.send();
+        res.status(500).send('Something broke!');
     }
 });
 
