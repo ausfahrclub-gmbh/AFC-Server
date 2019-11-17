@@ -1,8 +1,6 @@
 var express = require('express');
 var socket  = require('socket.io');
 
-var db = require('./database');
-
 const PORT = 9000; 
 var currentAlarmLevel;
 
@@ -19,67 +17,6 @@ app.use(bodyParser.json() );       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
 })); 
-
-// // create application/json parser
-// var jsonParser = bodyParser.json()
- 
-// // create application/x-www-form-urlencoded parser
-// var urlencodedParser = bodyParser.urlencoded({ extended: false })
-
-//Static files
-app.use(express.static('public'), function (req, res, next) {
-    // Website you wish to allow to connect
-    res.setHeader('Access-Control-Allow-Origin','*');
-
-    // Request methods you wish to allow
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-
-    // Request headers you wish to allow
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-
-    // Set to true if you need the website to include cookies in the requests sent
-    // to the API (e.g. in case you use sessions)
-    res.setHeader('Access-Control-Allow-Credentials', true);
-
-    // Pass to next layer of middleware
-    next();
-});
-
-// Get all movies
-app.get('/movies', async function(req, res){
-    var results = await db.getAllMovies()
-    //console.log('query results', results);
-    res.send(results)
-});
-
-app.post('/movies', async function(req, res){
-    var results = await db.addMovie(req.body)
-
-    if(results.rowsAffected == 1){
-        res.send(results);
-    }else{
-        res.status(500).send('Something broke!');
-    }
-});
-
-app.get('/movieRatings/:movieName', async function(req, res){
-    //console.log('rating req:' + req.params.movieName + ' return: ' + await db.getAllRatingsByMovie(req.params.movieName)[0]);
-    res.send(await db.getAllRatingsByMovie(req.params.movieName))
-})
-
-// POST method route
-app.post('/movieRatings', async function (req, res) {
-
-    //Get result (rowsAffected)
-    var r = await db.addMovieRating(req.body);
-
-    //If rowsAffected equals 1  => success
-    if(r.rowsAffected == 1){
-        res.send(r);
-    }else{
-        res.status(500).send('Something broke!');
-    }
-});
 
 // Socket setup & pass server
 var io = socket(server);
